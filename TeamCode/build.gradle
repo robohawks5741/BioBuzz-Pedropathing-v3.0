@@ -18,7 +18,10 @@ apply from: '../build.dependencies.gradle'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
-
+    compileSdk 36
+    defaultConfig {
+        minSdk 24
+    }
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
@@ -26,4 +29,9 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
+    implementation 'androidx.media3:media3-exoplayer:1.11.1'
+    //implementation 'com.google.firebase:firebase-firestore:26.6.0'
+    implementation "com.bylazar:docs:1.0.5"
+
+
 }
