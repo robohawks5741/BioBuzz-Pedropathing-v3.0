@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.algorithm.Foresight;
 import com.pedropathing.algorithm.ForesightConfig;
+import com.pedropathing.api.PoseFactory;
 import com.pedropathing.controllers.Controller;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Matrix;
+import com.pedropathing.math.Pose;
 import com.pedropathing.math.Vector2D;
+import com.pedropathing.paths.Path;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.revhub.localizers.PinpointConfig;
@@ -13,9 +17,11 @@ import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.teamcode.pedro.paths.redPaths;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+@Configurable
 public class Constants {
     public static Follower create(HardwareMap h) {
         return new Follower(
@@ -72,4 +78,15 @@ public class Constants {
                 c.naturalStrafeDeceleration.set(85.56269651583192);
             }
     );
+    @Configurable
+    public static class RobotConstants {
+        public static int selectedPath = 0;
+        public static PoseFactory poseFactory = PoseFactory.degrees();
+
+        public static Pose redNorthCell = poseFactory.of(58, 110, -90);
+        public static Pose redSouthCell = poseFactory.of(58, 32, 90);
+        public static Pose blueNorthCell = poseFactory.of(86, 110, -90);
+        public static Pose blueSouthCell = poseFactory.of(86, 32, 90);
+
+    }
 }
