@@ -6,14 +6,15 @@ import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 @TeleOp(name="FieldOrientedTest")
 public class fieldOrientedTest extends LinearOpMode {
-
     @Override
     public void runOpMode() throws InterruptedException {
         Follower follower = Constants.create(hardwareMap);
+        follower.setPose(Constants.RobotConstants.start);
         waitForStart();
         while (opModeIsActive()) {
             DrivePowers powers = ManualDrive.fieldCentric(

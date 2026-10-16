@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedro.testOpModes;
 
 import static com.pedropathing.api.Paths.curve;
+import static com.pedropathing.api.Paths.line;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 import com.pedropathing.drivetrain.DrivePowers;
@@ -20,8 +21,9 @@ public class autoAlignTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         follower = Constants.create(hardwareMap);
-        follower.setPose(paths.start);
+        follower.setPose(Constants.RobotConstants.start);
         boolean aPressedLastCycle = false;
+        boolean tempOverrideLastCycle = false;
         boolean inAuto = false;
         boolean tempOverride = false;
         Path currentPath = null;
@@ -32,26 +34,39 @@ public class autoAlignTest extends LinearOpMode {
             if (gamepad1.a && !aPressedLastCycle) {
                 aPressedLastCycle = true;
                 inAuto = !inAuto;
-                currentPath = curve(follower.pose(), Constants.RobotConstants.redNorthCell).linear(follower.pose().heading(), Constants.RobotConstants.redNorthCell.heading());
+                currentPath = line(follower.pose(), Constants.RobotConstants.redNorthCell).linear(follower.pose().heading(), Constants.RobotConstants.redNorthCell.heading());
                 Scheduler.schedule(follow(follower, currentPath));
             } else if(!gamepad1.a){
                 aPressedLastCycle = false;
             }
             tempOverride = (gamepad1.left_stick_x != 0 || gamepad1.left_stick_y != 0 || gamepad1.right_stick_x != 0);
-            currentPath = tempOverride ? curve(follower.pose(), Constants.RobotConstants.redNorthCell).linear(follower.pose().heading(), Constants.RobotConstants.redNorthCell.heading()) : currentPath;
-            if (inAuto && !tempOverride) {
+            currentPath = tempOverride ? line(follower.pose(), Constants.RobotConstants.redNorthCell).linear(follower.pose().heading(), Constants.RobotConstants.redNorthCell.heading()) : currentPath;
 
+            if (inAuto && !tempOverride) {
+                if (tempOverrideLastCycle) {
+
+                    follower.manual(0,0,0);
+                    Scheduler.reset();
+                    Scheduler.schedule(follow(follower, currentPath));
+                }
                 Scheduler.execute();
 
+
             } else {
+
                 DrivePowers powers = ManualDrive.fieldCentric(
-                        gamepad1.left_stick_x,
                         -gamepad1.left_stick_y,
+                        -gamepad1.left_stick_x,
                         -gamepad1.right_stick_x,
                         follower.pose().heading()
                 );
                 follower.manual(powers);
             }
+
+            tempOverrideLastCycle = tempOverride;
+
+            telemetry.addData("tempOverride", tempOverride);
+            telemetry.addData("Powers (FLH)", gamepad1.left_stick_x +" "+ -gamepad1.left_stick_y + " " + -gamepad1.right_stick_x);
 
         }
     }

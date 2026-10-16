@@ -16,8 +16,9 @@ public class test2 extends LinearOpMode {
             double lateral = gamepad1.left_stick_x;
             double turn = gamepad1.right_stick_x;
 
-        follower.manual(forward, lateral, turn);
-        follower.update();
+            follower.manual(forward, lateral, turn);
+            follower.update();
+        }
     }
 
 }

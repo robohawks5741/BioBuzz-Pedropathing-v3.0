@@ -83,6 +83,7 @@ public class Constants {
         public static int selectedPath = 0;
         public static PoseFactory poseFactory = PoseFactory.degrees();
 
+        public static Pose start = poseFactory.of(8, 136, 0);
         public static Pose redNorthCell = poseFactory.of(58, 110, -90);
         public static Pose redSouthCell = poseFactory.of(58, 32, 90);
         public static Pose blueNorthCell = poseFactory.of(86, 110, -90);
