@@ -28,7 +28,14 @@ public class limelightPollenTest extends LinearOpMode {
 
         Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
         ArrayList<pollen> pollens = new ArrayList<pollen>();
-        for (int i = 0; i < limelight.getLatestResult().getDetectorResults().size(); i++){
+        /*
+        * for (int i = 1; i <= number of pollen; i++) {
+        *   create a new "pollen" object with the data (location)
+        *   add it to the list "pollens"
+        * }
+        * */
+
+        for (int i = 1; i <= limelight.getLatestResult().getDetectorResults().size(); i++){
             LLResultTypes.DetectorResult result = limelight.getLatestResult().getDetectorResults().get(i);
             //estimate coordinates, record with id
             double txdeg = result.getTargetXDegrees();

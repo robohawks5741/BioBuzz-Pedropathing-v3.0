@@ -17,6 +17,11 @@ import java.util.Optional;
 import java.util.Set;
 
 public class launchControl {
+    /**
+     * Bang-bang controller, tries to spin the provided motor to provided rpm.
+     * If motor rpm under rpm target, full positive power
+     * If over rpm target + overspeedTolerance, full negative power
+     */
     public Command spinTo(double rpm, DcMotorEx motor, double overspeedTolerance) {
         double motorRPM = motor.getVelocity(AngleUnit.DEGREES)/6;
         if (rpm > motorRPM) {
