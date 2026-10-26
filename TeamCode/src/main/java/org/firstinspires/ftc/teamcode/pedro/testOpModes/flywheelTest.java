@@ -10,26 +10,41 @@ import org.firstinspires.ftc.teamcode.pedro.launchControl;
 
 @TeleOp(name = "Flywheel Test")
 public class flywheelTest extends LinearOpMode {
-    launchControl launchControl = new launchControl();
+
     DcMotorEx launcher;
+    DcMotorEx launcher2;
     Command spinTo;
+    Command spinTo2;
     @Override
     public void runOpMode() throws InterruptedException {
-        launcher = hardwareMap.get(DcMotorEx.class, "launcher");
+        launcher = hardwareMap.get(DcMotorEx.class, "testMotor");
+        launcher2 =hardwareMap.get(DcMotorEx.class, "testMotor2");
         launcher.setDirection(DcMotorSimple.Direction.FORWARD);
-        double targetRPM = 4000;
+        launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
+        double targetRPM = 3000;
         waitForStart();
         while (opModeIsActive()) {
-            spinTo = launchControl.spinTo(targetRPM, launcher, 100);
-            spinTo.execute();
-            if (gamepad1.dpad_down) {
-                targetRPM -= 100;
-            } else if (gamepad1.dpad_up) {
-                targetRPM += 100;
+            if (gamepad1.a){
+                spinTo2 = launchControl.spinTo(targetRPM, launcher2, 200);
+
+                spinTo2.execute();
+            } else {
+               // spinTo = launchControl.spinTo(0, launcher, 200);
+                spinTo2 = launchControl.spinTo(0, launcher2, 200);
+                spinTo2.execute();
+                //spinTo.execute();
             }
-            telemetry.addData("Power:",launcher.getPower());
+            launcher.setPower(launcher2.getPower());
+            if (gamepad1.dpad_down) {
+                targetRPM -= 25;
+            } else if (gamepad1.dpad_up) {
+                targetRPM += 25;
+            }
+            telemetry.addData("Power (1)",launcher.getPower());
+            telemetry.addData("Power (2)", launcher2.getPower());
             telemetry.addData("Target RPM", targetRPM);
-            telemetry.addData("Current RPM", launcher.getVelocity(AngleUnit.DEGREES)/6);
+            telemetry.addData("Current RPM (1)", launcher.getVelocity()*(60.0/28.0));
+            telemetry.addData("Current RPM (2)", launcher2.getVelocity()*(60.0/28.0));
             updateTelemetry(telemetry);
         }
 

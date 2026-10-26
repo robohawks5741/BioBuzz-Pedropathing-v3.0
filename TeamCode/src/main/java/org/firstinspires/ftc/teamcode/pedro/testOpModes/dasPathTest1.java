@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedro.testOpModes;
 
 
+import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.localization.Localizer;
@@ -29,6 +30,8 @@ public class dasPathTest1 extends LinearOpMode {
     Follower follower;
     @Override
     public void runOpMode() {
+
+        paths.poseFactory = PoseFactory.degrees();
 
         follower = Constants.create(hardwareMap);
         follower.setPose(paths.start);
