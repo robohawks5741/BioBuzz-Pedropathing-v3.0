@@ -37,11 +37,14 @@ public class launchControl {
         cycleStarted = true;
 
         if (elapsedTime.time() < 4) {
-            if (Math.abs(rpm - motorRPM) > 200) {
-                feed(false);
-            } else {
-                feed(true);
-            }
+            return Math.abs(rpm - motorRPM) > 200 ? Command.build()
+                    .setExecute(() -> feed(true)) : Command.build()
+                    .setExecute(() -> feed(false));
+
+        } else {
+            cycleStarted = false;
+            return Command.build()
+                    .setEnd((endCondition) -> feed(false));
         }
 
 

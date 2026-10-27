@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.pedro.launchControl;
 @TeleOp(name = "Flywheel Test")
 public class flywheelTest extends LinearOpMode {
 
-    launchControl launchControl = new launchControl();
+    launchControl launchController = new launchControl();
     DcMotorEx launcher;
     DcMotorEx launcher2;
     Command spinTo;
@@ -26,12 +26,13 @@ public class flywheelTest extends LinearOpMode {
         waitForStart();
         while (opModeIsActive()) {
             if (gamepad1.a){
-                spinTo2 = launchControl.spinTo(targetRPM, launcher2, 200);
+                spinTo2 = launchController.spinTo();
+
 
                 spinTo2.execute();
             } else {
                // spinTo = launchControl.spinTo(0, launcher, 200);
-                spinTo2 = launchControl.spinTo(0, launcher2, 200);
+                spinTo2 = launchController.spinTo();
                 spinTo2.execute();
                 //spinTo.execute();
             }
