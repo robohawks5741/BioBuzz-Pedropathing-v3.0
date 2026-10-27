@@ -10,7 +10,7 @@ public class redLvl1 {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    private final Pose start = poseFactory.of(56, 8, 90);
+    final Pose start = poseFactory.of(56, 8, 90);
     private final Pose path1 = poseFactory.of(56, 25, 90);
 
     public Path path1() {

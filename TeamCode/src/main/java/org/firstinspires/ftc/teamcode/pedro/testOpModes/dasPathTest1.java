@@ -56,9 +56,12 @@ public class dasPathTest1 extends LinearOpMode {
         schedule(sequence);
 
         while (opModeIsActive()) {
-            // Run the scheduler each loop
+            //update follower
             follower.update();
+
+            // Run the scheduler each loop
             Scheduler.execute();
+
             // add your other methods needed in the loop here
 
             telemetry.addData("X", follower.pose().x());
