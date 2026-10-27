@@ -10,8 +10,8 @@ import com.pedropathing.paths.interpolator.Interpolator;
 
 public class redPaths {
 
-    public static Command redPaths;
-    private final PoseFactory poseFactory = PoseFactory.degrees();
+
+     public PoseFactory poseFactory = PoseFactory.degrees();
 
     public final Pose start = poseFactory.of(9, 133, 0);
     private final Pose path1 = poseFactory.of(58, 35, 90);

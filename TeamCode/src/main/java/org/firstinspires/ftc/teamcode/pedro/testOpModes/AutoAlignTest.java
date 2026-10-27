@@ -43,6 +43,7 @@ public class AutoAlignTest extends LinearOpMode {
             //Figure out which launch area/cell to go to, depends on side (isRedSide) and if robot is on the "north" or "south" (away from audience and near audience respectively, y>72) of the field
             targetCell = follower.pose().y() > 72 ? isRedSide ? Constants.RobotConstants.redNorthCell : Constants.RobotConstants.blueNorthCell : isRedSide ? Constants.RobotConstants.redSouthCell : Constants.RobotConstants.blueSouthCell;
 
+
             if (gamepad1.a && !aPressedLastCycle) { //Runs whenever auto is TOGGLED (aka a is being pressed but was not last cycle)
                 aPressedLastCycle = true; //no shit Sherlock
                 inAuto = !inAuto; //toggle auto
