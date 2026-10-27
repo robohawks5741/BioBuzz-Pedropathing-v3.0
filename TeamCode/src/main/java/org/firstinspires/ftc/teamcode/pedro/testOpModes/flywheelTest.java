@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.pedro.launchControl;
 @TeleOp(name = "Flywheel Test")
 public class flywheelTest extends LinearOpMode {
 
+    launchControl launchControl = new launchControl();
     DcMotorEx launcher;
     DcMotorEx launcher2;
     Command spinTo;
