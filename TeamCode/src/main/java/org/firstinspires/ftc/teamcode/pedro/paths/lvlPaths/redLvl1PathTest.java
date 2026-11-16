@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Autonomous
-class redLvl1PathTest extends LinearOpMode {
+public class redLvl1PathTest extends LinearOpMode {
     Follower follower;
 
     boolean isRedAlliance = true;
@@ -21,7 +21,7 @@ class redLvl1PathTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
        
-            redLvl1 paths = new redLvl1();
+        redLvl1 paths = new redLvl1();
 
         follower = Constants.create(hardwareMap);
 

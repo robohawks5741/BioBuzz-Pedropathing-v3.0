@@ -9,7 +9,6 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Pose;
 import com.pedropathing.math.Vector2D;
-import com.pedropathing.paths.Path;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.revhub.localizers.PinpointConfig;
@@ -17,7 +16,6 @@ import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.firstinspires.ftc.teamcode.pedro.paths.redPaths;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -82,7 +80,15 @@ public class Constants {
 
     public static class RobotConstants {
         public static int selectedPath = 0;
+
+        public static double launchRPM = 2000;
+
         public static PoseFactory poseFactory = PoseFactory.degrees();
+
+        public static Pose redNorthCellAim = poseFactory.of(58, 96, 0);
+        public static Pose redSouthCellAim = poseFactory.of(58, 46, 0);
+        public static Pose blueNorthCellAim = poseFactory.of(86, 96, 0);
+        public static Pose blueSouthCellAim = poseFactory.of(86, 46, 0);
 
         public static Pose start = poseFactory.of(8, 136, 0);
         public static Pose redNorthCell = poseFactory.of(58, 110, -90);
@@ -90,5 +96,12 @@ public class Constants {
         public static Pose blueNorthCell = poseFactory.of(86, 110, -90);
         public static Pose blueSouthCell = poseFactory.of(86, 32, 90);
 
+    }
+
+    @Configurable
+    public static class feedPriorities {
+        public static int launchCycle = 2;
+        public static int atCapacity = 1;
+        public static int driver = 0;
     }
 }

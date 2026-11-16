@@ -1,53 +1,98 @@
 package org.firstinspires.ftc.teamcode.pedro.testOpModes;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+import static org.firstinspires.ftc.teamcode.pedro.Constants.RobotConstants.launchRPM;
+
+import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.pedro.launchControl;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.pedro.subsystemControl;
 
 @TeleOp(name = "Flywheel Test")
 public class flywheelTest extends LinearOpMode {
 
-    launchControl launchController = new launchControl();
+    subsystemControl subsystemController = new subsystemControl();
     DcMotorEx launcher;
     DcMotorEx launcher2;
     Command spinTo;
-    Command spinTo2;
+    //Command spinTo2;
     @Override
     public void runOpMode() throws InterruptedException {
-        launcher = hardwareMap.get(DcMotorEx.class, "testMotor");
-        launcher2 =hardwareMap.get(DcMotorEx.class, "testMotor2");
-        launcher.setDirection(DcMotorSimple.Direction.FORWARD);
-        launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
-        double targetRPM = 3000;
+        Follower follower = Constants.create(hardwareMap);
+
+        boolean launchPressedLastCycle = false;
+        boolean launchCycleRunning = false;
+        double targetRPM = 0;
+        subsystemController.initializeSubsystems();
+
         waitForStart();
         while (opModeIsActive()) {
-            if (gamepad1.a){
-                spinTo2 = launchController.spinTo();
 
-
-                spinTo2.execute();
+            //manual launcher control
+            if (gamepad1.y){
+                subsystemController.rpm = launchRPM;
             } else {
+                subsystemController.rpm = 0;
                // spinTo = launchControl.spinTo(0, launcher, 200);
-                spinTo2 = launchController.spinTo();
-                spinTo2.execute();
+
                 //spinTo.execute();
             }
-            launcher.setPower(launcher2.getPower());
-            if (gamepad1.dpad_down) {
-                targetRPM -= 25;
-            } else if (gamepad1.dpad_up) {
-                targetRPM += 25;
+            spinTo = subsystemController.spinTo;
+            spinTo.execute();
+
+            //this exists to help me figure out where the correct position values
+            //for the launch door servo are
+            if (gamepad1.dpadLeftWasPressed()) {
+                subsystemController.launchDoorOpen += 0.01;
+            } else if (gamepad1.dpadRightWasPressed()) {
+                subsystemController.launchDoorOpen -= 0.01;
+            } else if (gamepad1.dpadUpWasPressed()) {
+                subsystemController.launchDoorClosed += 0.01;
+            } else if (gamepad1.dpadDownWasPressed()) {
+                subsystemController.launchDoorClosed -= 0.01;
             }
-            telemetry.addData("Power (1)",launcher.getPower());
-            telemetry.addData("Power (2)", launcher2.getPower());
-            telemetry.addData("Target RPM", targetRPM);
+
+            //manual launcher door control
+            if (gamepad1.leftBumperWasPressed()) {
+                subsystemController.launchDoor.setPosition(subsystemController.launchDoorOpen);
+            } else if (gamepad1.leftTriggerWasPressed()) {
+                subsystemController.launchDoor.setPosition(subsystemController.launchDoorClosed);
+            }
+
+            //manual feed control
+            subsystemController.submitFeedRequest(gamepad1.right_trigger > 0, Constants.feedPriorities.driver);
+
+            //toggles launch cycle
+            if (gamepad1.aWasPressed()) {
+                if (!subsystemController.launchCycle().isScheduled()){
+                    subsystemController.launchCycle().schedule();
+                } else {
+                    subsystemController.launchCycle().cancel();
+                }
+            }
+
+
+            double forward = -gamepad1.left_stick_y;
+            double lateral = -gamepad1.left_stick_x;
+            double turn = -gamepad1.right_stick_x;
+
+            follower.manual(forward, lateral, turn);
+            follower.update();
+            telemetry.addData("Power (1)",subsystemController.launchMotor.getPower());
+            telemetry.addData("Power (2)", subsystemController.launchMotor2.getPower());
+            telemetry.addData("launchCycle.isScheduled", subsystemController.launchCycle().isScheduled());
+            telemetry.addData("Target RPM", subsystemController.rpm);
             telemetry.addData("Current RPM (1)", launcher.getVelocity()*(60.0/28.0));
             telemetry.addData("Current RPM (2)", launcher2.getVelocity()*(60.0/28.0));
+            telemetry.addData("launchPressedLastCycle", launchPressedLastCycle);
             updateTelemetry(telemetry);
+            subsystemController.updateAll();
+            //subsystemController.updateFeed();
+
         }
 
 
