@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.pedro.Constants.RobotConstants.laun
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -27,8 +28,7 @@ public class flywheelTest extends LinearOpMode {
         boolean launchPressedLastCycle = false;
         boolean launchCycleRunning = false;
         double targetRPM = 0;
-        subsystemController.initializeSubsystems();
-
+        subsystemController.initializeSubsystems(this);
         waitForStart();
         while (opModeIsActive()) {
 
@@ -42,7 +42,7 @@ public class flywheelTest extends LinearOpMode {
                 //spinTo.execute();
             }
             spinTo = subsystemController.spinTo;
-            spinTo.execute();
+            spinTo.schedule();
 
             //this exists to help me figure out where the correct position values
             //for the launch door servo are
@@ -86,11 +86,16 @@ public class flywheelTest extends LinearOpMode {
             telemetry.addData("Power (2)", subsystemController.launchMotor2.getPower());
             telemetry.addData("launchCycle.isScheduled", subsystemController.launchCycle().isScheduled());
             telemetry.addData("Target RPM", subsystemController.rpm);
-            telemetry.addData("Current RPM (1)", launcher.getVelocity()*(60.0/28.0));
-            telemetry.addData("Current RPM (2)", launcher2.getVelocity()*(60.0/28.0));
+            telemetry.addData("launchDoorOpen", subsystemController.launchDoorOpen);
+            telemetry.addData("launchDoorClosed", subsystemController.launchDoorClosed);
+            telemetry.addData("launchDoorPosition", subsystemController.launchDoor.getPosition());
+
+            telemetry.addData("Current RPM (1)", subsystemController.launchMotor.getVelocity()*(60.0/28.0));
+            telemetry.addData("Current RPM (2)", subsystemController.launchMotor2.getVelocity()*(60.0/28.0));
             telemetry.addData("launchPressedLastCycle", launchPressedLastCycle);
             updateTelemetry(telemetry);
             subsystemController.updateAll();
+
             //subsystemController.updateFeed();
 
         }

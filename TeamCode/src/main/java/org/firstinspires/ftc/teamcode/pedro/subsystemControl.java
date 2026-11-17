@@ -6,16 +6,18 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.tel
 
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.pedro.Constants.feedPriorities;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
 import java.util.concurrent.TimeUnit;
 
-public class subsystemControl {
+public class subsystemControl extends OpMode{
 
     public DcMotorEx launchMotor;
     public DcMotorEx launchMotor2;
@@ -28,12 +30,28 @@ public class subsystemControl {
     public VoltageSensor batteryVoltageSensor;
     public double launchRPM = Constants.RobotConstants.launchRPM;
 
-    public double launchDoorClosed = 0.0;
-    public double launchDoorOpen = 0.5;
+    public double launchDoorClosed = 0.25;
+    public double launchDoorOpen = 0.19;
 
 
-   // ArrayList<feedRequest> feedRequests = new ArrayList<>();
+
     feedRequest currentFeedRequest;
+
+    @Override
+    public void init() {
+
+    }
+
+    @Override
+    public void loop() {
+
+    }
+
+    /**
+     * Class for feed request (constructor).
+     * on: whether to run the feed or not.
+     * priority: the priority of the feed request.
+     */
     class feedRequest {
         boolean on;
         int priority;
@@ -41,33 +59,33 @@ public class subsystemControl {
     }
 
     /**
-     * initializes all subsystems
+     * initializes all subsystems.
      * Must be called first to establish hardware map connections
      */
-    public void initializeSubsystems() {
+    public void initializeSubsystems(OpMode opMode) {
 
         //launch motors
-        launchMotor = hardwareMap.get(DcMotorEx.class, "testMotor");
-        launchMotor2 = hardwareMap.get(DcMotorEx.class, "testMotor2");
+        launchMotor = opMode.hardwareMap.get(DcMotorEx.class, "testMotor2");
+        launchMotor2 = opMode.hardwareMap.get(DcMotorEx.class, "testMotor");
         launchMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         launchMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //feed motor
-        feed = hardwareMap.get(DcMotorSimple.class, "feed");
+        feed = opMode.hardwareMap.get(DcMotorSimple.class, "feed");
         feed.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        launchDoor = hardwareMap.get(Servo.class, "launchDoor");
+        launchDoor = opMode.hardwareMap.get(Servo.class, "launchDoor");
 
         //battery voltage sensor
-        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
+        batteryVoltageSensor = opMode.hardwareMap.voltageSensor.iterator().next();
 
     }
 
     /**
-     * updates feed
-     * ensures launchRPM is up to date
-     * updates telemetry
-     * executes scheduler
+     * updates feed,
+     * ensures launchRPM is up to date,
+     * updates telemetry,
+     * executes scheduler,
      */
     public void updateAll() {
         updateFeed();
@@ -77,7 +95,7 @@ public class subsystemControl {
     }
 
     /**
-     *Runs the automatic launch cycle
+     *Runs the automatic launch cycle.
      * Must be called every loop cycle, since it does not run its own loop.
      * @return Command that runs the launch cycle
      */
@@ -86,6 +104,7 @@ public class subsystemControl {
         double motorRPM = launchMotor.getVelocity()*(60.0/28.0);
 
         double launchTime = 4- Math.pow((-(batteryVoltageSensor.getVoltage()-13)/2), 1.8);
+        launchTime = 4;
 
         //checks if still within time limit (launchTime)
         //if yes, spin to 3000 rpm and submit feed request to feed if up to speed
@@ -108,24 +127,32 @@ public class subsystemControl {
                     });
         }*/
 
+        double finalLaunchTime = launchTime;
         return Command.build()
+
+                .setStart(()->{
+                    elapsedTime.reset();
+
+                })
                 //Every cycle that it's running, spin to 3000 rpm and submit feed request to feed if up to speed
                 .setExecute(() -> {
                     rpm = launchRPM;
-                    spinTo.execute();
+                    spinTo.schedule();
                     if (Math.abs(rpm - motorRPM) < 100) {
+
                         launchDoor.setPosition(launchDoorOpen);
                         submitFeedRequest(true, feedPriorities.launchCycle);
                     } else {
                         launchDoor.setPosition(launchDoorClosed);
                         submitFeedRequest(false, feedPriorities.launchCycle);
                     }
+                    //telemetry.addData("LaunchCycleRunning", true);
 
 
                 })
 
                 //Ends launch cycle when time is up
-                .setDone(()-> elapsedTime.time(TimeUnit.SECONDS) < launchTime)
+                .setDone(()-> elapsedTime.time(TimeUnit.SECONDS) > finalLaunchTime)
 
                 //When ended, set rpm to 0, reset the timer, and clear currentFeedRequest so that driver has control again.
                 .setEnd((endCondition) -> {
@@ -147,7 +174,7 @@ public class subsystemControl {
         double motorRPM = launchMotor.getVelocity()*(60.0/28.0);
         if (rpm+overspeedTolerance < motorRPM || rpm == 0){
             launchMotor.setPower(0);
-        } else if (rpm > motorRPM && motorRPM > 0) {
+        } else if (rpm > motorRPM && motorRPM >= 0) {
             launchMotor.setPower(1);
         }else if ((rpm-motorRPM)<200){
             launchMotor.setPower(rpm/4500);
