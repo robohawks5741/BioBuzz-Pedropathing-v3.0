@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.pedro;
 
 import static com.pedropathing.ivy.commands.Commands.instant;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -33,8 +31,10 @@ public class subsystemControl {
     public double launchDoorOpen = 0.19;
 
 
-
+    //The current feed request to be sent to the updateFeed() method to actually run feed
     subSysRequest currentFeedRequest = new subSysRequest();
+    subSysRequest currentLaunchRequest = new subSysRequest();
+    subSysRequest currentDoorRequest = new subSysRequest();
 
 
 
@@ -44,9 +44,10 @@ public class subsystemControl {
      * priority: the priority of the feed request.
      */
     class subSysRequest {
-        double power;
+        double value;
         int priority;
         int system;
+
     }
 
     /**
@@ -184,38 +185,42 @@ public class subsystemControl {
      * If currentFeedRequest is null, set currentFeedRequest to request.
      * Checks priority of currentFeedRequest and request, whichever higher becomes currentFeedRequest.
      */
-    public void feedPriorityManager(subSysRequest request) {
+    public subSysRequest priorityManager(subSysRequest existingRequest, subSysRequest request) {
 
-        if (currentFeedRequest == null) {
-            currentFeedRequest = request;
-        } else if (currentFeedRequest.priority <= request.priority) {
-            currentFeedRequest = request;
+        if (existingRequest == null) {
+            existingRequest = request;
+        } else if (existingRequest.priority <= request.priority) {
+            existingRequest = request;
         }
-        if (!launchCycle().isScheduled() && request.priority == 0) {
-            currentFeedRequest = request;
-        }
+        return existingRequest;
+
     }
-
     /**
      * Submits a new feed request from scratch, and sends it through the feed priority manager
      * @param system identifies which subsystem the request is for, 0: feed, 1: launch motor, 2: launch door
-     * @param power power to send to the feed motor (-1 to 1)
+     * @param value power to send to the feed motor (-1 to 1)
      * @param priority the priority of the request, higher number means higher priority, priorities found in Constants.feedPriorities
      */
-    public void submitSubSysRequest(double power, int priority, int system) {
+    public void submitSubSysRequest(double value, int priority, int system) {
         subSysRequest request = new subSysRequest();
-        request.power = power;
+        request.value = value;
         request.priority = priority;
-        switch (system){
-            case 0: //feed
-                feedPriorityManager(request);
+       // request.system = system;
+       // subSysRequest workingRequest = null;
+        switch (system) {
+            case 0:
+               // workingRequest = currentFeedRequest;
+                currentFeedRequest = priorityManager(currentFeedRequest, request);
                 break;
-            case 1: //launch motor
+            case 1:
+                currentLaunchRequest= priorityManager(currentLaunchRequest, request);
+                break;
+            case 2:
+                currentDoorRequest = priorityManager(currentDoorRequest, request);
+                break;
 
-                break;
-            case 2: //launch door
-                break;
         }
+       // priorityManager(workingRequest, request);
 
     }
 
@@ -224,7 +229,7 @@ public class subsystemControl {
      */
     public void updateFeed() {
         if (currentFeedRequest != null) {
-            feed(currentFeedRequest.power);
+            feed(currentFeedRequest.value);
         } else {
             feed(0);
         }
