@@ -20,6 +20,7 @@ public class redLvl1PathTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+<<<<<<< Updated upstream
        
         redLvl1 paths = new redLvl1();
 
