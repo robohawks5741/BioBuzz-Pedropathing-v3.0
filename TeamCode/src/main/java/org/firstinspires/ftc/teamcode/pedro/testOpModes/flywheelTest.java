@@ -35,14 +35,17 @@ public class flywheelTest extends LinearOpMode {
             //manual launcher control
             if (gamepad1.y){
                 subsystemController.rpm = launchRPM;
-            } else {
+            } else if (!subsystemController.launchCycle().isScheduled()) {
                 subsystemController.rpm = 0;
                // spinTo = launchControl.spinTo(0, launcher, 200);
 
                 //spinTo.execute();
             }
             spinTo = subsystemController.spinTo;
-            spinTo.schedule();
+            if (!subsystemController.cycleStarted){
+                spinTo.schedule();
+            }
+
 
             //this exists to help me figure out where the correct position values
             //for the launch door servo are
@@ -64,7 +67,8 @@ public class flywheelTest extends LinearOpMode {
             }
 
             //manual feed control
-            subsystemController.submitFeedRequest(gamepad1.right_trigger > 0, Constants.feedPriorities.driver);
+            subsystemController.submitSubSysRequest(gamepad1.right_trigger-gamepad1.left_trigger, Constants.feedPriorities.driver, 0);
+
 
             //toggles launch cycle
             if (gamepad1.aWasPressed()) {
@@ -89,12 +93,16 @@ public class flywheelTest extends LinearOpMode {
             telemetry.addData("launchDoorOpen", subsystemController.launchDoorOpen);
             telemetry.addData("launchDoorClosed", subsystemController.launchDoorClosed);
             telemetry.addData("launchDoorPosition", subsystemController.launchDoor.getPosition());
+            telemetry.addData("cycleStarted", subsystemController.cycleStarted);
 
             telemetry.addData("Current RPM (1)", subsystemController.launchMotor.getVelocity()*(60.0/28.0));
             telemetry.addData("Current RPM (2)", subsystemController.launchMotor2.getVelocity()*(60.0/28.0));
             telemetry.addData("launchPressedLastCycle", launchPressedLastCycle);
             updateTelemetry(telemetry);
             subsystemController.updateAll();
+            if (gamepad1.back) {
+                subsystemController.feed.setPower(-1);
+            }
 
             //subsystemController.updateFeed();
 

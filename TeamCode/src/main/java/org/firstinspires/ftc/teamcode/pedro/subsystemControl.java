@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
 import static com.pedropathing.ivy.commands.Commands.instant;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
 import com.pedropathing.ivy.Command;
@@ -13,49 +13,40 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.pedro.Constants.feedPriorities;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
 import java.util.concurrent.TimeUnit;
 
-public class subsystemControl extends OpMode{
+public class subsystemControl {
 
     public DcMotorEx launchMotor;
     public DcMotorEx launchMotor2;
     public DcMotorSimple feed;
     public Servo launchDoor;
     public double rpm;
-    double overspeedTolerance = 200;
+    double overspeedTolerance = 50;
     public boolean cycleStarted = false;
     public ElapsedTime elapsedTime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
     public VoltageSensor batteryVoltageSensor;
     public double launchRPM = Constants.RobotConstants.launchRPM;
-
+    OpMode runningOpMode;
     public double launchDoorClosed = 0.25;
     public double launchDoorOpen = 0.19;
 
 
 
-    feedRequest currentFeedRequest;
+    subSysRequest currentFeedRequest = new subSysRequest();
 
-    @Override
-    public void init() {
 
-    }
-
-    @Override
-    public void loop() {
-
-    }
 
     /**
      * Class for feed request (constructor).
      * on: whether to run the feed or not.
      * priority: the priority of the feed request.
      */
-    class feedRequest {
-        boolean on;
+    class subSysRequest {
+        double power;
         int priority;
-
+        int system;
     }
 
     /**
@@ -63,7 +54,7 @@ public class subsystemControl extends OpMode{
      * Must be called first to establish hardware map connections
      */
     public void initializeSubsystems(OpMode opMode) {
-
+        runningOpMode = opMode;
         //launch motors
         launchMotor = opMode.hardwareMap.get(DcMotorEx.class, "testMotor2");
         launchMotor2 = opMode.hardwareMap.get(DcMotorEx.class, "testMotor");
@@ -90,7 +81,7 @@ public class subsystemControl extends OpMode{
     public void updateAll() {
         updateFeed();
         launchRPM = Constants.RobotConstants.launchRPM;
-        telemetry.update();
+        runningOpMode.telemetry.update();
         Scheduler.execute();
     }
 
@@ -136,15 +127,16 @@ public class subsystemControl extends OpMode{
                 })
                 //Every cycle that it's running, spin to 3000 rpm and submit feed request to feed if up to speed
                 .setExecute(() -> {
+                    cycleStarted = true;
                     rpm = launchRPM;
                     spinTo.schedule();
                     if (Math.abs(rpm - motorRPM) < 100) {
 
                         launchDoor.setPosition(launchDoorOpen);
-                        submitFeedRequest(true, feedPriorities.launchCycle);
+                        submitSubSysRequest(1, feedPriorities.launchCycle, 0);
                     } else {
                         launchDoor.setPosition(launchDoorClosed);
-                        submitFeedRequest(false, feedPriorities.launchCycle);
+                        submitSubSysRequest(0, feedPriorities.launchCycle, 0);
                     }
                     //telemetry.addData("LaunchCycleRunning", true);
 
@@ -156,6 +148,7 @@ public class subsystemControl extends OpMode{
 
                 //When ended, set rpm to 0, reset the timer, and clear currentFeedRequest so that driver has control again.
                 .setEnd((endCondition) -> {
+                    cycleStarted = false;
                     rpm = 0;
                     elapsedTime.reset();
                     launchDoor.setPosition(launchDoorClosed);
@@ -174,10 +167,10 @@ public class subsystemControl extends OpMode{
         double motorRPM = launchMotor.getVelocity()*(60.0/28.0);
         if (rpm+overspeedTolerance < motorRPM || rpm == 0){
             launchMotor.setPower(0);
-        } else if (rpm > motorRPM && motorRPM >= 0) {
+        } else if (rpm > motorRPM+50 && motorRPM >= 0) {
             launchMotor.setPower(1);
-        }else if ((rpm-motorRPM)<200){
-            launchMotor.setPower(rpm/4500);
+        }else if ((rpm-motorRPM)<50){
+            launchMotor.setPower(rpm/5500);
         }else {
             launchMotor.setPower(0);
         }
@@ -185,14 +178,13 @@ public class subsystemControl extends OpMode{
     });
 
     //greater priority means higher priority
-
     /**
      * manages feed priority
      * @param request is the incoming request
      * If currentFeedRequest is null, set currentFeedRequest to request.
      * Checks priority of currentFeedRequest and request, whichever higher becomes currentFeedRequest.
      */
-    public void feedPriorityManager(feedRequest request) {
+    public void feedPriorityManager(subSysRequest request) {
 
         if (currentFeedRequest == null) {
             currentFeedRequest = request;
@@ -206,14 +198,25 @@ public class subsystemControl extends OpMode{
 
     /**
      * Submits a new feed request from scratch, and sends it through the feed priority manager
-     * @param on whether to run the feed or not
-     * @param priority the priority of the feed request
+     * @param system identifies which subsystem the request is for, 0: feed, 1: launch motor, 2: launch door
+     * @param power power to send to the feed motor (-1 to 1)
+     * @param priority the priority of the request, higher number means higher priority, priorities found in Constants.feedPriorities
      */
-    public void submitFeedRequest(boolean on, int priority) {
-        feedRequest request = new feedRequest();
-        request.on = on;
+    public void submitSubSysRequest(double power, int priority, int system) {
+        subSysRequest request = new subSysRequest();
+        request.power = power;
         request.priority = priority;
-        feedPriorityManager(request);
+        switch (system){
+            case 0: //feed
+                feedPriorityManager(request);
+                break;
+            case 1: //launch motor
+
+                break;
+            case 2: //launch door
+                break;
+        }
+
     }
 
     /**
@@ -221,9 +224,9 @@ public class subsystemControl extends OpMode{
      */
     public void updateFeed() {
         if (currentFeedRequest != null) {
-            feed(currentFeedRequest.on);
+            feed(currentFeedRequest.power);
         } else {
-            feed(false);
+            feed(0);
         }
     }
 
@@ -236,9 +239,9 @@ public class subsystemControl extends OpMode{
 
     /**
      * Sets the power of the feed motor
-     * @param on whether to run the feed or not
+     * @param power whether to run the feed or not
      */
-    public void feed(boolean on) {
-        feed.setPower(on? 1 : 0);
+    private void feed(double power) {
+        feed.setPower(power);
     }
 }
