@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.pedro.testOpModes;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.teamcode.pedro.Constants.RobotConstants.launchRPM;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.pedro.subsystemControl;
@@ -34,9 +31,9 @@ public class flywheelTest extends LinearOpMode {
 
             //manual launcher control
             if (gamepad1.y){
-                subsystemController.rpm = launchRPM;
+                subsystemController.targetRPM = launchRPM;
             } else if (!subsystemController.launchCycle().isScheduled()) {
-                subsystemController.rpm = 0;
+                subsystemController.targetRPM = 0;
                // spinTo = launchControl.spinTo(0, launcher, 200);
 
                 //spinTo.execute();
@@ -89,7 +86,7 @@ public class flywheelTest extends LinearOpMode {
             telemetry.addData("Power (1)",subsystemController.launchMotor.getPower());
             telemetry.addData("Power (2)", subsystemController.launchMotor2.getPower());
             telemetry.addData("launchCycle.isScheduled", subsystemController.launchCycle().isScheduled());
-            telemetry.addData("Target RPM", subsystemController.rpm);
+            telemetry.addData("Target RPM", subsystemController.targetRPM);
             telemetry.addData("launchDoorOpen", subsystemController.launchDoorOpen);
             telemetry.addData("launchDoorClosed", subsystemController.launchDoorClosed);
             telemetry.addData("launchDoorPosition", subsystemController.launchDoor.getPosition());
@@ -100,9 +97,7 @@ public class flywheelTest extends LinearOpMode {
             telemetry.addData("launchPressedLastCycle", launchPressedLastCycle);
             updateTelemetry(telemetry);
             subsystemController.updateAll();
-            if (gamepad1.back) {
-                subsystemController.feed.setPower(-1);
-            }
+
 
             //subsystemController.updateFeed();
 

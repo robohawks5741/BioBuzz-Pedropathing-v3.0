@@ -20,7 +20,7 @@ public class subsystemControl {
     public DcMotorEx launchMotor2;
     public DcMotorSimple feed;
     public Servo launchDoor;
-    public double rpm;
+    public double targetRPM;
     double overspeedTolerance = 50;
     public boolean cycleStarted = false;
     public ElapsedTime elapsedTime = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
@@ -81,6 +81,7 @@ public class subsystemControl {
      */
     public void updateAll() {
         updateFeed();
+        updateLaunch();
         launchRPM = Constants.RobotConstants.launchRPM;
         runningOpMode.telemetry.update();
         Scheduler.execute();
@@ -129,9 +130,9 @@ public class subsystemControl {
                 //Every cycle that it's running, spin to 3000 rpm and submit feed request to feed if up to speed
                 .setExecute(() -> {
                     cycleStarted = true;
-                    rpm = launchRPM;
+                    targetRPM = launchRPM;
                     spinTo.schedule();
-                    if (Math.abs(rpm - motorRPM) < 100) {
+                    if (Math.abs(targetRPM - motorRPM) < 100) {
 
                         launchDoor.setPosition(launchDoorOpen);
                         submitSubSysRequest(1, feedPriorities.launchCycle, 0);
@@ -150,7 +151,7 @@ public class subsystemControl {
                 //When ended, set rpm to 0, reset the timer, and clear currentFeedRequest so that driver has control again.
                 .setEnd((endCondition) -> {
                     cycleStarted = false;
-                    rpm = 0;
+                    targetRPM = 0;
                     elapsedTime.reset();
                     launchDoor.setPosition(launchDoorClosed);
                     clearFeed();
@@ -166,12 +167,12 @@ public class subsystemControl {
      */
     public Command spinTo = instant(()-> {
         double motorRPM = launchMotor.getVelocity()*(60.0/28.0);
-        if (rpm+overspeedTolerance < motorRPM || rpm == 0){
+        if (targetRPM +overspeedTolerance < motorRPM || targetRPM == 0){
             launchMotor.setPower(0);
-        } else if (rpm > motorRPM+50 && motorRPM >= 0) {
+        } else if (targetRPM > motorRPM+50 && motorRPM >= 0) {
             launchMotor.setPower(1);
-        }else if ((rpm-motorRPM)<50){
-            launchMotor.setPower(rpm/5500);
+        }else if ((targetRPM -motorRPM)<50){
+            launchMotor.setPower(targetRPM /5500);
         }else {
             launchMotor.setPower(0);
         }
@@ -225,7 +226,7 @@ public class subsystemControl {
     }
 
     /**
-     * Updates the feed based on the current feed request
+     * Updates the feed based on the current feed request (currentFeedRequest)
      */
     public void updateFeed() {
         if (currentFeedRequest != null) {
@@ -236,11 +237,25 @@ public class subsystemControl {
     }
 
     /**
+     * Updates the targetRPM based on the current launch request (currentLaunchRequest)
+     */
+    public void updateLaunch() {
+        if (currentLaunchRequest != null) {
+            targetRPM = currentLaunchRequest.value;
+        }
+        spinTo.schedule();
+    }
+    /**
      * Clears the current feed request by setting currentFeedRequest to null
      */
     public void clearFeed(){
         currentFeedRequest = null;
     }
+
+    /**
+     * Clears the current launch request by setting currentLaunchRequest to null
+     */
+    public void clearLaunch() {currentLaunchRequest = null;}
 
     /**
      * Sets the power of the feed motor
