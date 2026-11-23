@@ -38,12 +38,7 @@ public class flywheelTest extends LinearOpMode {
 
                 //spinTo.execute();
             }
-            spinTo = subsystemController.spinTo;
-            if (!subsystemController.cycleStarted){
-                spinTo.schedule();
-            }
-
-
+            
             //this exists to help me figure out where the correct position values
             //for the launch door servo are
             if (gamepad1.dpadLeftWasPressed()) {
