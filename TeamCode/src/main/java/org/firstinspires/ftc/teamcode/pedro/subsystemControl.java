@@ -290,7 +290,7 @@ public class subsystemControl {
 
     /**
      * Sets the launch door position while ensuring the position is either open or closed
-     * @param position
+     * @param position position sent to servo
      */
     private void door(double position) {
         if (position == launchDoorOpen || position == launchDoorClosed) {
