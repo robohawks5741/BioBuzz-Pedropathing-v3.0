@@ -134,7 +134,7 @@ public class subsystemControl {
                     if (Math.abs(targetRPM - motorRPM) < 100) {
 
                         launchDoor.setPosition(launchDoorOpen);
-                        submitSubSysRequest(1, feedPriorities.launchCycle, 0);
+                        submitSubSysRequest(0.7, feedPriorities.launchCycle, 0);
                     } else {
                         launchDoor.setPosition(launchDoorClosed);
                         submitSubSysRequest(0, feedPriorities.launchCycle, 0);
