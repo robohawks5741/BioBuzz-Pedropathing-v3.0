@@ -125,13 +125,12 @@ public class subsystemControl {
 
                 .setStart(()->{
                     elapsedTime.reset();
-
+                    submitSubSysRequest(0, feedPriorities.launchCycle, 1);
                 })
                 //Every cycle that it's running, spin to 3000 rpm and submit feed request to feed if up to speed
                 .setExecute(() -> {
                     cycleStarted = true;
-                    targetRPM = launchRPM;
-                    spinTo.schedule();
+                    submitSubSysRequest(launchRPM, feedPriorities.launchCycle, 1);
                     if (Math.abs(targetRPM - motorRPM) < 100) {
 
                         launchDoor.setPosition(launchDoorOpen);
@@ -151,10 +150,12 @@ public class subsystemControl {
                 //When ended, set rpm to 0, reset the timer, and clear currentFeedRequest so that driver has control again.
                 .setEnd((endCondition) -> {
                     cycleStarted = false;
-                    targetRPM = 0;
+                    //targetRPM = 0;
                     elapsedTime.reset();
                     launchDoor.setPosition(launchDoorClosed);
+                    submitSubSysRequest(0, feedPriorities.launchCycle, 1);
                     clearFeed();
+                    clearLaunch();
                 });
     }
 
