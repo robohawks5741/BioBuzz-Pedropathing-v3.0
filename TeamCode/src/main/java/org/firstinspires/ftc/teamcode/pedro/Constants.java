@@ -82,6 +82,7 @@ public class Constants {
         public static int selectedPath = 0;
 
         public static double launchRPM = 2000;
+        public static double idlePower = 0.33;
 
         public static PoseFactory poseFactory = PoseFactory.degrees();
 

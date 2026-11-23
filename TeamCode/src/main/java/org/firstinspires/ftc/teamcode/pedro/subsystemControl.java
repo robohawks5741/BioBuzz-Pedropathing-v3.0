@@ -131,7 +131,7 @@ public class subsystemControl {
                 .setExecute(() -> {
                     cycleStarted = true;
                     submitSubSysRequest(launchRPM, feedPriorities.launchCycle, 1);
-                    if (Math.abs(targetRPM - motorRPM) < 100) {
+                    if (Math.abs(targetRPM - motorRPM) < 200) {
 
                         launchDoor.setPosition(launchDoorOpen);
                         submitSubSysRequest(0.7, feedPriorities.launchCycle, 0);
@@ -173,7 +173,7 @@ public class subsystemControl {
         } else if (targetRPM > motorRPM+50 && motorRPM >= 0) {
             launchMotor.setPower(1);
         }else if ((targetRPM -motorRPM)<50){
-            launchMotor.setPower(targetRPM /5500);
+            launchMotor.setPower(Constants.RobotConstants.idlePower);
         }else {
             launchMotor.setPower(0);
         }
