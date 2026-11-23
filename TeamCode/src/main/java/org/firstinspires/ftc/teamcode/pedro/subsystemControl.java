@@ -246,6 +246,18 @@ public class subsystemControl {
         }
         spinTo.schedule();
     }
+
+    /**
+     * Updates the Launch Door position based on the current door request (currentDoorRequest)
+     */
+
+    public void updateDoor() {
+        if (currentDoorRequest != null) {
+            door(currentDoorRequest.value);
+        }
+    }
+
+
     /**
      * Clears the current feed request by setting currentFeedRequest to null
      */
@@ -259,10 +271,27 @@ public class subsystemControl {
     public void clearLaunch() {currentLaunchRequest = null;}
 
     /**
+     * Clears the current door request by setting currentDoorRequest to null
+     */
+    public void clearDoor() {
+        currentDoorRequest = null;
+    }
+
+    /**
      * Sets the power of the feed motor
      * @param power whether to run the feed or not
      */
     private void feed(double power) {
         feed.setPower(power);
+    }
+
+    /**
+     * Sets the launch door position while ensuring the position is either open or closed
+     * @param position
+     */
+    private void door(double position) {
+        if (position == launchDoorOpen || position == launchDoorClosed) {
+            launchDoor.setPosition(position);
+        }
     }
 }
