@@ -94,10 +94,10 @@ public class subsystemControl {
      */
     public Command launchCycle() {
 
-        double motorRPM = launchMotor.getVelocity()*(60.0/28.0);
+
 
         double launchTime = 4- Math.pow((-(batteryVoltageSensor.getVoltage()-13)/2), 1.8);
-        launchTime = 4;
+        launchTime = 3;
 
         //checks if still within time limit (launchTime)
         //if yes, spin to 3000 rpm and submit feed request to feed if up to speed
@@ -126,18 +126,20 @@ public class subsystemControl {
                 .setStart(()->{
                     elapsedTime.reset();
                     submitSubSysRequest(0, feedPriorities.launchCycle, 1);
+                    launchDoor.setPosition(launchDoorOpen);
                 })
                 //Every cycle that it's running, spin to 3000 rpm and submit feed request to feed if up to speed
                 .setExecute(() -> {
+                    double motorRPM = launchMotor.getVelocity()*(60.0/28.0);
                     cycleStarted = true;
                     submitSubSysRequest(launchRPM, feedPriorities.launchCycle, 1);
-                    if (Math.abs(targetRPM - motorRPM) < 200) {
+                    if (Math.abs(targetRPM - motorRPM) < 150 && elapsedTime.time(TimeUnit.SECONDS) > 0.8) {
+                        //submitSubSysRequest(1, feedPriorities.launchCycle, 0);
+                        submitSubSysRequest(0.8, feedPriorities.launchCycle, 0);
 
-                        launchDoor.setPosition(launchDoorOpen);
-                        submitSubSysRequest(0.7, feedPriorities.launchCycle, 0);
                     } else {
-                        launchDoor.setPosition(launchDoorClosed);
-                        submitSubSysRequest(0, feedPriorities.launchCycle, 0);
+
+                        submitSubSysRequest(0.0, feedPriorities.launchCycle, 0);
                     }
                     //telemetry.addData("LaunchCycleRunning", true);
 
@@ -149,6 +151,7 @@ public class subsystemControl {
 
                 //When ended, set rpm to 0, reset the timer, and clear currentFeedRequest so that driver has control again.
                 .setEnd((endCondition) -> {
+                    launchDoor.setPosition(launchDoorClosed);
                     cycleStarted = false;
                     //targetRPM = 0;
                     elapsedTime.reset();

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.pedro.testOpModes;
 import static org.firstinspires.ftc.teamcode.pedro.Constants.RobotConstants.launchRPM;
 
+import static java.lang.Math.clamp;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.ivy.Command;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -59,7 +61,7 @@ public class flywheelTest extends LinearOpMode {
             }
 
             //manual feed control
-            subsystemController.submitSubSysRequest(gamepad1.right_trigger-gamepad1.left_trigger, Constants.feedPriorities.driver, 0);
+            subsystemController.submitSubSysRequest(clamp(gamepad1.right_trigger-gamepad1.left_trigger, -0.75,0.75), Constants.feedPriorities.driver, 0);
 
 
             //toggles launch cycle
