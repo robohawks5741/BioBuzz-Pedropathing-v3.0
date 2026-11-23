@@ -126,7 +126,7 @@ public class subsystemControl {
                 .setStart(()->{
                     elapsedTime.reset();
                     submitSubSysRequest(0, feedPriorities.launchCycle, 1);
-                    launchDoor.setPosition(launchDoorOpen);
+                    submitSubSysRequest(launchDoorOpen, feedPriorities.launchCycle,2);
                 })
                 //Every cycle that it's running, spin to 3000 rpm and submit feed request to feed if up to speed
                 .setExecute(() -> {
@@ -151,12 +151,11 @@ public class subsystemControl {
 
                 //When ended, set rpm to 0, reset the timer, and clear currentFeedRequest so that driver has control again.
                 .setEnd((endCondition) -> {
-                    launchDoor.setPosition(launchDoorClosed);
                     cycleStarted = false;
                     //targetRPM = 0;
                     elapsedTime.reset();
-                    launchDoor.setPosition(launchDoorClosed);
-                    submitSubSysRequest(0, feedPriorities.launchCycle, 1);
+                    clearDoor();
+                    submitSubSysRequest(launchDoorClosed, feedPriorities.driver,2);
                     clearFeed();
                     clearLaunch();
                 });
@@ -210,8 +209,6 @@ public class subsystemControl {
         subSysRequest request = new subSysRequest();
         request.value = value;
         request.priority = priority;
-       // request.system = system;
-       // subSysRequest workingRequest = null;
         switch (system) {
             case 0:
                // workingRequest = currentFeedRequest;
@@ -225,7 +222,7 @@ public class subsystemControl {
                 break;
 
         }
-       // priorityManager(workingRequest, request);
+
 
     }
 

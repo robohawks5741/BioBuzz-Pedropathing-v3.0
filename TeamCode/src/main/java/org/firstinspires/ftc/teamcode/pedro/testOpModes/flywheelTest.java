@@ -55,9 +55,9 @@ public class flywheelTest extends LinearOpMode {
 
             //manual launcher door control
             if (gamepad1.leftBumperWasPressed()) {
-                subsystemController.launchDoor.setPosition(subsystemController.launchDoorOpen);
-            } else if (gamepad1.leftTriggerWasPressed()) {
-                subsystemController.launchDoor.setPosition(subsystemController.launchDoorClosed);
+                subsystemController.submitSubSysRequest(subsystemController.launchDoorOpen, Constants.feedPriorities.driver,2);
+            } else if (gamepad1.rightBumperWasPressed()) {
+                subsystemController.submitSubSysRequest(subsystemController.launchDoorClosed, Constants.feedPriorities.driver,2);
             }
 
             //manual feed control
