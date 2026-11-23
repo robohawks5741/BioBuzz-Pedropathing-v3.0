@@ -31,9 +31,9 @@ public class flywheelTest extends LinearOpMode {
 
             //manual launcher control
             if (gamepad1.y){
-                subsystemController.targetRPM = launchRPM;
-            } else if (!subsystemController.launchCycle().isScheduled()) {
-                subsystemController.targetRPM = 0;
+                subsystemController.submitSubSysRequest(launchRPM,Constants.feedPriorities.driver,1);
+            } else  {
+                subsystemController.submitSubSysRequest(0,Constants.feedPriorities.driver,1);
                // spinTo = launchControl.spinTo(0, launcher, 200);
 
                 //spinTo.execute();

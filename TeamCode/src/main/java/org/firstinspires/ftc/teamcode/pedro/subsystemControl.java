@@ -46,7 +46,7 @@ public class subsystemControl {
     class subSysRequest {
         double value;
         int priority;
-        int system;
+       // int system;
 
     }
 
